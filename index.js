@@ -7,6 +7,7 @@ async function recognizeText() {
   const selectedImage = document.getElementById('selected-image');
   const recognizedText = document.getElementById('recognized-text');
   const recognizeButton = document.getElementById('recognize-button');
+  const cedulaData = document.querySelector('#cedula');
 
   // Disable the recognize button during processing
   recognizeButton.disabled = true;
@@ -88,9 +89,9 @@ async function recognizeText() {
 
         if (dniMatch && dniMatch.length > 0) {
           const cleanDniNumber = dniMatch[0].replace('-', '');
-          console.log('DNI Number:', cleanDniNumber);
+          cedulaData.innerText = cleanDniNumber;
         }
-        recognizedText.textContent = text;
+        recognizedText.textContent = '¡Hecho!';
       }
     });
   } catch (error) {
