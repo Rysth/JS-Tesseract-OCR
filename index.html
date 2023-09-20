@@ -35,14 +35,25 @@
               accept="image/*"
             />
           </div>
-          <div class="my-10 grid place-items-center">
-            <img
-              id="selected-image"
-              src="https://placehold.co/500x325"
-              class="h-[325px] w-[500px] object-contain object-center bg-white rounded-2xl"
-              alt="Selected Image"
-            />
+          <div class="my-10 grid md:grid-cols-[1fr_600px] place-items-center">
+            <div id="detected-face-container" class="grid place-items-center">
+              <img
+                id="detected-face"
+                src=""
+                class="bg-white object-fill h-[180px] w-[120px] rounded-xl outline outline-4 outline-cyan-400"
+                alt="Detected Face "
+              />
+            </div>
+            <div>
+              <img
+                id="selected-image"
+                src="https://placehold.co/525x325"
+                class="h-[325px] w-[525px] object-cover object-center bg-white rounded-2xl mx-auto outline outline-4 outline-cyan-400"
+                alt="Selected Image"
+              />
+            </div>
           </div>
+
           <p id="recognize-button" class="text-base md:text-lg font-bold uppercase text-cyan-400">
             Resultado:
           </p>
@@ -53,6 +64,7 @@
       </div>
     </main>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="./index.js"></script>
   </body>
