@@ -7,27 +7,31 @@
   </head>
   <body class="bg-gray-900">
     <main>
-      <div class="container max-w-[1200px] mx-auto">
+      <div class="container max-w-[1000px] mx-auto">
         <div class="text-white px-4 py-16">
-          <h1 class="mb-10 text-center text-4xl md:text-6xl font-bold">
+          <h1 class="mb-10 text-center text-4xl md:text-5xl font-bold">
             !Bienvenido al Sistema de Escaneo OCR!
           </h1>
-          <div class="flex items-center flex-col md:flex-row text-base md:text-lg gap-2">
+          <div
+            class="flex justify-between items-center flex-col md:flex-row text-base md:text-lg gap-2"
+          >
             <p class="font-bold md:w-80">1 - Seleccionar Idioma:</p>
             <select
               id="language"
               name="language"
-              class="text-black block py-1 px-2 w-full border rounded"
+              class="text-black block py-1 px-2 w-3/4 border rounded"
             >
               <option value="spa" selected>Español</option>
             </select>
           </div>
-          <div class="flex items-center flex-col md:flex-row text-base md:text-lg gap-2 mt-5">
+          <div
+            class="flex justify-between items-center flex-col md:flex-row text-base md:text-lg gap-2 mt-5"
+          >
             <p class="font-bold md:w-80">2 - Seleccionar Imagen:</p>
             <input
               type="file"
               id="file-1"
-              class="block rounded w-full border bg-white text-black"
+              class="block rounded w-3/4 border bg-white text-black"
               accept="image/*"
             />
           </div>
