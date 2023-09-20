@@ -22,17 +22,15 @@ async function recognizeText() {
 
     // Load FaceAPI.js models
     await faceapi.nets.tinyFaceDetector.loadFromUri(
-      'https://rawcdn.githack.com/Rysth/JS-Tesseract-OCR/tree/main/models',
+      'https://rysth.github.io/JS-Tesseract-OCR/models/',
     );
     await faceapi.nets.faceLandmark68Net.loadFromUri(
-      'https://rawcdn.githack.com/Rysth/JS-Tesseract-OCR/tree/main/models',
+      'https://rysth.github.io/JS-Tesseract-OCR/models/',
     );
     await faceapi.nets.faceRecognitionNet.loadFromUri(
-      'https://rawcdn.githack.com/Rysth/JS-Tesseract-OCR/tree/main/models',
+      'https://rysth.github.io/JS-Tesseract-OCR/models/',
     );
-    await faceapi.nets.ssdMobilenetv1.load(
-      'https://rawcdn.githack.com/Rysth/JS-Tesseract-OCR/tree/main/models',
-    );
+    await faceapi.nets.ssdMobilenetv1.load('https://rysth.github.io/JS-Tesseract-OCR/models/');
 
     // Handle image selection
     fileInput.addEventListener('change', async (e) => {
