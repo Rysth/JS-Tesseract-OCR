@@ -1,25 +1,15 @@
 // Function to handle image selection and text recognition
 async function recognizeText() {
-  const language = document.getElementById('language');
-  const selectedLang = language.value;
-
   const fileInput = document.getElementById('file-1');
   const selectedImage = document.getElementById('selected-image');
   const recognizedText = document.getElementById('recognized-text');
   const recognizeButton = document.getElementById('recognize-button');
-  const cedulaData = document.querySelector('#cedula');
+  const detectedFaceImage = document.getElementById('detected-face');
 
   // Disable the recognize button during processing
   recognizeButton.disabled = true;
 
-  // Initialize Tesseract worker with the selected language
-  const worker = await Tesseract.createWorker();
-
   try {
-    await worker.load();
-    await worker.loadLanguage(selectedLang);
-    await worker.initialize(selectedLang);
-
     // Load FaceAPI.js models
     await faceapi.nets.tinyFaceDetector.loadFromUri('../../models');
     await faceapi.nets.faceLandmark68Net.loadFromUri('../../models');
@@ -37,9 +27,37 @@ async function recognizeText() {
         // Create an HTML image element
         const imgElement = document.createElement('img');
         imgElement.src = imageUrl;
-        const {
-          data: { text },
-        } = await worker.recognize(imageUrl);
+
+        // Send the image to OCR.space API
+        const formData = new FormData();
+        formData.append('apikey', 'K83682140088957'); // Replace with your OCR.space API key
+        formData.append('language', 'spa'); // Language code (e.g., 'eng' for English)
+        formData.append('file', file);
+
+        try {
+          const ocrResponse = await fetch('https://api.ocr.space/parse/image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (ocrResponse.ok) {
+            const ocrData = await ocrResponse.json();
+
+            // Extract and display recognized text
+            if (!ocrData.IsErroredOnProcessing) {
+              const parsedText = ocrData.ParsedResults[0].ParsedText;
+              recognizedText.textContent = parsedText;
+            } else {
+              recognizedText.textContent =
+                'OCR processing error: ' + ocrData.ErrorMessage;
+            }
+          } else {
+            recognizedText.textContent =
+              'Error communicating with OCR.space API';
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
 
         const faceDetection = await faceapi
           .detectSingleFace(imgElement)
@@ -50,10 +68,10 @@ async function recognizeText() {
           const { x, y, width, height } = faceDetection.detection.box;
 
           // Expand the size of the box to capture more of the face
-          const expandedX = Math.max(0, x - 20); // Adjust this value as needed
-          const expandedY = Math.max(0, y - 50); // Adjust this value as needed
-          const expandedWidth = width + 40; // Adjust this value as needed
-          const expandedHeight = height + 80; // Adjust this value as needed
+          const expandedX = Math.max(0, x - 20);
+          const expandedY = Math.max(0, y - 50);
+          const expandedWidth = width + 40;
+          const expandedHeight = height + 80;
 
           // Create a canvas and draw the detected face on it
           const canvas = document.createElement('canvas');
@@ -72,26 +90,21 @@ async function recognizeText() {
             expandedHeight,
           );
 
-          // Convert the canvas content to an image
-          const detectedFaceImage = document.getElementById('detected-face');
           detectedFaceImage.src = canvas.toDataURL('image/jpeg'); // You can choose the image format here
           detectedFaceImage.style.display = 'block';
         } else {
-          console.log('No face detected.');
-          // You can hide or clear the detected face image if needed.
-          const detectedFaceImage = document.getElementById('detected-face');
           detectedFaceImage.src = '';
           detectedFaceImage.style.display = 'none'; // Hide the detected face image
         }
 
-        const dniRegex = /(?<!\d)(?:\d{9}-\d|\d{10})(?!\d)/g;
+        /* const dniRegex = /(?<!\d)(?:\d{9}-\d|\d{10})(?!\d)/g;
         const dniMatch = text.match(dniRegex);
 
         if (dniMatch && dniMatch.length > 0) {
           const cleanDniNumber = dniMatch[0].replace('-', '');
           cedulaData.innerText = cleanDniNumber;
-        }
-        recognizedText.textContent = '¡Hecho!';
+        } */
+        /*  recognizedText.textContent = '¡Hecho!'; */
       }
     });
   } catch (error) {
