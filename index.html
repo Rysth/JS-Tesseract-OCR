@@ -7,77 +7,60 @@
   </head>
   <body class="bg-gray-900">
     <main>
-      <div class="container max-w-[1000px] mx-auto">
-        <div class="text-white px-4 py-16">
-          <h1 class="mb-10 text-center text-4xl md:text-5xl font-bold">
+      <div class="container max-w-screen-lg mx-auto">
+        <div class="text-white px-4 py-14">
+          <h1 class="mb-10 text-center text-3xl md:text-5xl font-bold">
             !Bienvenido al Sistema de Escaneo OCR!
           </h1>
-          <div
-            class="flex justify-between items-center flex-col md:flex-row text-base md:text-lg gap-2"
-          >
-            <p class="font-bold md:w-80">1 - Seleccionar Idioma:</p>
-            <select
-              id="language"
-              name="language"
-              class="text-black block py-1 px-2 w-3/4 border rounded"
-            >
-              <option value="spa" selected>Español</option>
-            </select>
-          </div>
-          <div
-            class="flex justify-between items-center flex-col md:flex-row text-base md:text-lg gap-2 mt-5"
-          >
-            <p class="font-bold md:w-80">2 - Seleccionar Imagen:</p>
+          <div class="grid items-center gap-2 mt-5">
+            <p class="font-semibold text-lg">Seleccione tu cédula:</p>
             <input
               type="file"
               id="file-1"
-              class="block rounded w-3/4 border bg-white text-black"
+              class="block rounded border bg-white text-black text-sm"
               accept="image/*"
             />
           </div>
-          <div class="my-10 grid gap-10 md:grid-cols-[1fr_600px] place-items-center">
-            <div id="detected-face-container" class="grid place-items-center">
-              <img
-                id="detected-face"
-                src=""
-                class="bg-white object-fill h-[180px] w-[120px] rounded-xl outline outline-2 outline-cyan-400"
-                alt="Detected Face "
-              />
-            </div>
-            <div>
-              <img
-                id="selected-image"
-                src="https://placehold.co/525x325"
-                class="h-[325px] w-[525px] object-cover object-center bg-white rounded-2xl mx-auto outline outline-2 outline-cyan-400"
-                alt="Selected Image"
-              />
+          <div
+            class="my-10 flex flex-col md:flex-row gap-5 justify-between items-center"
+          >
+            <img
+              id="selected-image"
+              src="https://placehold.co/525x325"
+              class="md:h-[325px] w-full md:max-w-[525px] object-center bg-white rounded-xl"
+              alt="Selected Image"
+            />
+            <div class="w-full rounded-xl p-4">
+              <picture class="flex justify-center">
+                <img
+                  id="detected-face"
+                  src="https://placehold.co/180x120"
+                  class="bg-white object-cover h-[180px] w-[120px] rounded-2xl"
+                  alt="Detected Face "
+                />
+              </picture>
+              <ul class="p-0 mt-5 mx-auto">
+                <li class="flex outline outline-1 p-2">
+                  <span class="w-2/6 md:w-1/4 font-bold">Cédula:</span>
+                  <span id="cedula"></span>
+                </li>
+                <li class="flex outline outline-1 p-2">
+                  <span class="w-2/6 md:w-1/4 font-bold">Nombres:</span>
+                  <span id="nombres"></span>
+                </li>
+                <li class="flex outline outline-1 p-2">
+                  <span class="w-2/6 md:w-1/4 font-bold">Apellidos:</span>
+                  <span id="apellidos"></span>
+                </li>
+              </ul>
             </div>
           </div>
-
-          <p id="recognize-button" class="text-base md:text-lg font-bold uppercase text-cyan-400">
-            Resultado:
-          </p>
-          <p id="recognized-text" class="text-center text-base md:text-2xl mt-4">
+          <p
+            id="recognized-text"
+            class="text-center text-base md:text-2xl mt-4 hidden"
+          >
             Porfavor, seleccione una imagen para comenzar el escaneo.
           </p>
-          <div class="relative overflow-x-auto my-10">
-            <table class="w-full text-sm text-left">
-              <thead class="text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-300">
-                <tr>
-                  <th scope="col" class="px-6 py-3">Información</th>
-                  <th scope="col" class="px-6 py-3">Contenido</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                  <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap dark:text-white">
-                    Cédula
-                  </th>
-                  <td class="px-6 py-4 dark:text-white" id="cedula">----</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </main>
