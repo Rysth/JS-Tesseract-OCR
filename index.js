@@ -1,37 +1,8 @@
-// Function to handle image selection and text recognition
-// Function to rotate an image
-function rotateImage(imageElement, degrees) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  const { width, height } = imageElement;
-
-  // Set the canvas dimensions based on the rotated image dimensions
-  if (degrees === 90 || degrees === 270) {
-    canvas.width = height;
-    canvas.height = width;
-  } else {
-    canvas.width = width;
-    canvas.height = height;
-  }
-
-  // Rotate the image on the canvas
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate((degrees * Math.PI) / 180);
-  ctx.drawImage(imageElement, -width / 2, -height / 2, width, height);
-
-  return canvas.toDataURL('image/jpeg');
-}
-
 async function recognizeText() {
   const fileInput = document.getElementById('file-1');
   const selectedImage = document.getElementById('selected-image');
   const recognizedText = document.getElementById('recognized-text');
-  const recognizeButton = document.getElementById('recognize-button');
   const detectedFaceImage = document.getElementById('detected-face');
-
-  // Disable the recognize button during processing
-  recognizeButton.disabled = true;
 
   try {
     // Load FaceAPI.js models
@@ -52,15 +23,6 @@ async function recognizeText() {
         const imgElement = document.createElement('img');
         imgElement.src = imageUrl;
         imgElement.onload = async () => {
-          // Check if the image is in portrait orientation
-          const isPortrait = imgElement.height > imgElement.width;
-
-          if (isPortrait) {
-            // Rotate the image by 90 degrees (counter-clockwise)
-            const rotatedImageUrl = rotateImage(imgElement, -90); // Rotate by -90 degrees
-            selectedImage.src = rotatedImageUrl;
-          }
-
           const faceDetection = await faceapi
             .detectSingleFace(imgElement)
             .withFaceLandmarks()
@@ -126,6 +88,7 @@ async function recognizeText() {
                 const parsedText = ocrData.ParsedResults[0].ParsedText;
                 const linesOverlay = ocrData.ParsedResults[0].TextOverlay.Lines;
                 const dniRegex = /(?<!\d)(?:\d{9}-\d|\d{10})(?!\d)/g;
+                console.log();
                 const dniLine = linesOverlay.find((line) => {
                   if (line.LineText.match(dniRegex)) return line;
                 });
@@ -136,18 +99,56 @@ async function recognizeText() {
                     '-',
                     '',
                   );
-                  console.log(dniNumber);
                   const cedulaData = document.querySelector('#cedula');
                   cedulaData.innerText = dniNumber;
                 }
-                recognizedText.textContent = parsedText;
-              } else {
-                recognizedText.textContent =
-                  'OCR processing error: ' + ocrData.ErrorMessage;
+
+                // Regular expressions to match the desired patterns
+                const regex1 = /APELLIDOS Y NOMBRES\s*(\w+)\s*(\w+)/;
+                const regex2 = /NOMBRES\s*(\w+)\s*(\w+)/;
+                const regex3 = /APELLIDOS\s*(\w+)\s*(\w+)/;
+
+                let extractedNames = [];
+
+                // Try to match each pattern and extract names
+                const match1 = parsedText.match(regex1);
+                const match2 = parsedText.match(regex2);
+                const match3 = parsedText.match(regex3);
+
+                if (match1) {
+                  extractedNames = [match1[1], match1[2]];
+                } else if (match2) {
+                  extractedNames = [match2[1], match2[2]];
+                } else if (match3) {
+                  extractedNames = [match3[1], match3[2]];
+                }
+
+                // Display the extracted names
+                if (extractedNames.length === 2) {
+                  const [surname, givenName] = extractedNames;
+                  const lastNameData = surname + ' ' + givenName;
+                  const lastNameText = document.querySelector('#apellidos');
+                  lastNameText.innerText = lastNameData;
+
+                  const indexOfNames = parsedText.indexOf(givenName);
+                  if (indexOfNames !== -1) {
+                    const wordsAfterNames = parsedText
+                      .substr(indexOfNames + givenName.length)
+                      .match(/\w+/g);
+
+                    if (wordsAfterNames && wordsAfterNames.length >= 2) {
+                      const [word1, word2] = wordsAfterNames.slice(0, 2);
+                      const nameData = word1 + ' ' + word2;
+                      const nameText = document.querySelector('#nombres');
+                      nameText.innerText = nameData;
+                    } else {
+                      console.log('Words after names not found');
+                    }
+                  }
+                } else {
+                  console.log('Names not found');
+                }
               }
-            } else {
-              recognizedText.textContent =
-                'Error communicating with OCR.space API';
             }
           } catch (error) {
             console.error('Error:', error);
@@ -157,9 +158,6 @@ async function recognizeText() {
     });
   } catch (error) {
     console.error('Error:', error);
-  } finally {
-    // Enable the recognize button after processing
-    recognizeButton.disabled = false;
   }
 }
 

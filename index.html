@@ -27,10 +27,10 @@
             <img
               id="selected-image"
               src="https://placehold.co/525x325"
-              class="md:h-[325px] w-full object-center bg-white rounded-xl"
+              class="md:h-[325px] w-full md:max-w-[525px] object-center bg-white rounded-xl"
               alt="Selected Image"
             />
-            <div class="border w-full rounded-xl p-4">
+            <div class="w-full rounded-xl p-4">
               <picture class="flex justify-center">
                 <img
                   id="detected-face"
@@ -44,26 +44,20 @@
                   <span class="w-2/6 md:w-1/4 font-bold">Cédula:</span>
                   <span id="cedula"></span>
                 </li>
-                <li class="flex outline outline-1 p-2" id="nombres">
+                <li class="flex outline outline-1 p-2">
                   <span class="w-2/6 md:w-1/4 font-bold">Nombres:</span>
-                  ------------
+                  <span id="nombres"></span>
                 </li>
-                <li class="flex outline outline-1 p-2" id="apellidos">
+                <li class="flex outline outline-1 p-2">
                   <span class="w-2/6 md:w-1/4 font-bold">Apellidos:</span>
-                  ------------
+                  <span id="apellidos"></span>
                 </li>
               </ul>
             </div>
           </div>
           <p
-            id="recognize-button"
-            class="text-base md:text-lg font-bold uppercase text-cyan-400"
-          >
-            Resultado:
-          </p>
-          <p
             id="recognized-text"
-            class="text-center text-base md:text-2xl mt-4"
+            class="text-center text-base md:text-2xl mt-4 hidden"
           >
             Porfavor, seleccione una imagen para comenzar el escaneo.
           </p>
