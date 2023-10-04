@@ -1,3 +1,43 @@
+async function resizeImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    img.onload = () => {
+      const maxWidth = 800; // Set your desired max width
+      const maxHeight = 800; // Set your desired max height
+
+      let newWidth = img.width;
+      let newHeight = img.height;
+
+      // Check if the image dimensions need to be scaled down
+      if (img.width > maxWidth) {
+        newWidth = maxWidth;
+        newHeight = (img.height * maxWidth) / img.width;
+      }
+      if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (img.width * maxHeight) / img.height;
+      }
+
+      // Set the canvas dimensions to the scaled size
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      // Draw the resized image on the canvas
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+      // Convert the canvas to a blob
+      canvas.toBlob((blob) => {
+        resolve(new File([blob], file.name, { type: file.type }));
+      }, file.type);
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 async function recognizeText() {
   const fileInput = document.getElementById('file-1');
   const selectedImage = document.getElementById('selected-image');
@@ -24,12 +64,15 @@ async function recognizeText() {
       recognizedText.textContent = 'Escaneando, espere porfavor...';
       const file = e.target.files[0];
       if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        selectedImage.src = imageUrl;
-
         // Create an HTML image element
         const imgElement = document.createElement('img');
-        imgElement.src = imageUrl;
+        // Resize the image
+        const resizedFile = await resizeImage(file);
+
+        // Set the image element's src attribute to the resized image URL
+        imgElement.src = URL.createObjectURL(resizedFile);
+
+        selectedImage.src = imgElement.src;
         imgElement.onload = async () => {
           // Check if the image is portrait
 
