@@ -1,38 +1,41 @@
-// Import the imageCompression library (make sure to include it in your HTML file)
-// <script src="https://cdn.jsdelivr.net/npm/image-compression@1.1.0/dist/image-compression.min.js"></script>
+async function resizeImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-// Function to compress an image
-async function compressImage(imageUrl) {
-  const imageFile = await fetch(imageUrl).then((response) => response.blob());
-  const options = {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 1920,
-    useWebWorker: true,
-  };
-  const compressedFile = await imageCompression(imageFile, options);
-  return URL.createObjectURL(compressedFile);
-}
+    img.onload = () => {
+      const maxWidth = 800; // Set your desired max width
+      const maxHeight = 800; // Set your desired max height
 
-// Function to process the compressed image
-async function handleImageUpload(event) {
-  const fileInput = event.target;
-  const selectedImage = document.getElementById('selected-image');
-  const recognizedText = document.getElementById('recognized-text');
+      let newWidth = img.width;
+      let newHeight = img.height;
 
-  const file = fileInput.files[0];
-  if (file) {
-    recognizedText.textContent = 'Escaneando, espere porfavor...';
-    const imageUrl = URL.createObjectURL(file);
+      // Check if the image dimensions need to be scaled down
+      if (img.width > maxWidth) {
+        newWidth = maxWidth;
+        newHeight = (img.height * maxWidth) / img.width;
+      }
+      if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (img.width * maxHeight) / img.height;
+      }
 
-    // Compress the selected image
-    const compressedImage = await compressImage(imageUrl);
+      // Set the canvas dimensions to the scaled size
+      canvas.width = newWidth;
+      canvas.height = newHeight;
 
-    // Display the selected image
-    selectedImage.src = compressedImage;
+      // Draw the resized image on the canvas
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-    // Call the recognizeText function with the compressed image data
-    recognizeText(compressedImage);
-  }
+      // Convert the canvas to a blob
+      canvas.toBlob((blob) => {
+        resolve(new File([blob], file.name, { type: file.type }));
+      }, file.type);
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
 }
 
 // Function to recognize text from the compressed image
@@ -54,6 +57,59 @@ async function recognizeText(compressedImage) {
       'https://rysth.github.io/JS-Tesseract-OCR/models/',
     );
 
+    // Handle image selection
+    fileInput.addEventListener('change', async (e) => {
+      recognizedText.textContent = 'Escaneando, espere porfavor...';
+      const file = e.target.files[0];
+      if (file) {
+        // Create an HTML image element
+        const imgElement = document.createElement('img');
+
+        // Resize the image
+        const resizedFile = await resizeImage(file);
+
+        // Set the image element's src attribute to the resized image URL
+        imgElement.src = URL.createObjectURL(resizedFile);
+
+        selectedImage.src = imgElement.src;
+        imgElement.onload = async () => {
+          const faceDetection = await faceapi
+            .detectSingleFace(imgElement)
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+          if (faceDetection) {
+            const { x, y, width, height } = faceDetection.detection.box;
+
+            // Expand the size of the box to capture more of the face
+            const expandedX = Math.max(0, x - 20);
+            const expandedY = Math.max(0, y - 50);
+            const expandedWidth = width + 40;
+            const expandedHeight = height + 80;
+
+            // Create a canvas and draw the detected face on it
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = expandedWidth;
+            canvas.height = expandedHeight;
+            ctx.drawImage(
+              imgElement,
+              expandedX,
+              expandedY,
+              expandedWidth,
+              expandedHeight,
+              0,
+              0,
+              expandedWidth,
+              expandedHeight,
+            );
+
+            detectedFaceImage.src = canvas.toDataURL('image/jpeg'); // You can choose the image format here
+            detectedFaceImage.style.display = 'block';
+          } else {
+            detectedFaceImage.src = '';
+            detectedFaceImage.style.display = 'none'; // Hide the detected face image
+          }
     // Create an HTML image element
     const imgElement = document.createElement('img');
     imgElement.src = compressedImage;
