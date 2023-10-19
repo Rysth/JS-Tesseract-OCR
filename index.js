@@ -2,7 +2,20 @@ const { defineComponents, DocumentReaderService } = window.Regula;
 window.RegulaDocumentSDK = new DocumentReaderService();
 
 const licenseFile = './license/regula.license';
-let licenseResponse = '';
+
+function convertBinaryToBase64(binaryData) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = btoa(
+        String.fromCharCode.apply(null, new Uint8Array(reader.result)),
+      );
+      resolve(base64Data);
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(binaryData);
+  });
+}
 
 // Use the fetch API to load the file's content
 fetch(licenseFile)
@@ -10,14 +23,15 @@ fetch(licenseFile)
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-    return response.text();
+    return response.blob();
   })
-  .then((fileContent) => {
-    licenseResponse = fileContent;
-    defineComponents().then(() => {
-      window.RegulaDocumentSDK.initialize({ license: licenseResponse });
-      console.log(window.RegulaDocumentSDK.params);
-    });
+  .then((blob) => convertBinaryToBase64(blob))
+  .then((base64) => {
+    defineComponents().then(() =>
+      window.RegulaDocumentSDK.initialize({
+        license: base64,
+      }),
+    );
 
     window.RegulaDocumentSDK.recognizerProcessParam = {
       processParam: {
